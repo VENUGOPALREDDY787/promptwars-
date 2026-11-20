@@ -97,6 +97,30 @@ export function generateCandidateActions(
     }
   });
 
+  // 5. Aircraft Swap between two flights at the same station
+  const delayedFlights = currentResult.flights.filter(f => f.arrivalDelay > 30 && f.status !== 'CANCELLED');
+  delayedFlights.forEach(delayedF => {
+    const swapCandidate = currentResult.flights.find(f => 
+      f.flight_id !== delayedF.flight_id &&
+      f.origin === delayedF.origin &&
+      f.arrivalDelay === 0 &&
+      f.assignedTailId !== delayedF.assignedTailId &&
+      Math.abs(f.stdMinutes - delayedF.stdMinutes) <= 90
+    );
+
+    if (swapCandidate) {
+      candidates.push({
+        id: `ACT-SWAP-${delayedF.flight_id}-${swapCandidate.flight_id}`,
+        type: 'SWAP_AIRCRAFT',
+        title: `Aircraft Tail Swap: ${delayedF.flight_id} ⇄ ${swapCandidate.flight_id} at ${delayedF.origin}`,
+        description: `Swaps airframe ${swapCandidate.assignedTailId} with delayed airframe ${delayedF.assignedTailId} at ${delayedF.origin} to clear departure delay.`,
+        swapFlightId1: delayedF.flight_id,
+        swapFlightId2: swapCandidate.flight_id,
+        targetFlightId: delayedF.flight_id
+      });
+    }
+  });
+
   // 5. Evaluate Every Candidate Action through the Pure Deterministic Simulation Engine
   const evaluated: EvaluatedAction[] = candidates.map(action => {
     // Run independent simulation with this action applied

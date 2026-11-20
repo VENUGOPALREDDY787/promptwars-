@@ -74,6 +74,16 @@ export const TopBar: React.FC = () => {
     downloadAnchor.remove();
   };
 
+  const handleToggleTheme = () => {
+    const nextMode = !isDarkMode;
+    setIsDarkMode(nextMode);
+    if (!nextMode) {
+      document.body.classList.add('light-mode');
+    } else {
+      document.body.classList.remove('light-mode');
+    }
+  };
+
   return (
     <header className="h-14 border-b border-[#222] bg-[#0A0A0A] text-slate-100 flex items-center justify-between px-4 select-none sticky top-0 z-50">
       {/* 1. App Logo & Brand */}
@@ -328,7 +338,7 @@ export const TopBar: React.FC = () => {
 
         {/* Dark/Light Toggle */}
         <button
-          onClick={() => setIsDarkMode(!isDarkMode)}
+          onClick={handleToggleTheme}
           className="p-2 rounded-lg bg-[#141414] hover:bg-[#222] border border-[#222] text-slate-300 hover:text-white transition-colors"
           title="Toggle Theme"
         >
